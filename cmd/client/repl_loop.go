@@ -7,7 +7,7 @@ import (
 	"github.com/adamjames870/peril/internal/gamelogic"
 )
 
-func ReplLoop(s clientState) {
+func ReplLoop(s *clientState) {
 
 	for {
 		words := gamelogic.GetInput()

@@ -19,19 +19,29 @@ func main() {
 	fmt.Println("Starting Peril client...")
 	state := clientState{}
 
+	err := run(&state)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	fmt.Println("Shutting down")
+
+}
+
+func run(state *clientState) error {
+
 	conn, errConn := amqp.Dial(connStr)
 	if errConn != nil {
-		fmt.Println("Failed to load connection: " + errConn.Error())
-		os.Exit(1)
+		return fmt.Errorf("failed to load connection: %w", errConn)
 	}
 	state.conn = conn
 
-	defer func(conn *amqp.Connection) {
-		err := state.conn.Close()
-		if err != nil {
-			fmt.Println("Failed to close connection: " + err.Error())
+	defer func() {
+		if err := state.conn.Close(); err != nil {
+			fmt.Println("Failed to close connection:", err)
 		}
-	}(state.conn)
+	}()
 
 	fmt.Println("Opened connection to amqp")
 
@@ -39,20 +49,11 @@ func main() {
 	if errWelcome != nil {
 		fmt.Println("Failed to load welcome message: " + errWelcome.Error())
 	}
+
 	state.userName = userName
-
-	queueName := fmt.Sprintf("%s.%s", routing.PauseKey, userName)
-
-	//ch, qu, errDecBnd := pubsub.DeclareAndBind(state.conn, routing.ExchangePerilDirect, queueName, routing.PauseKey, pubsub.Transient)
-	//if errDecBnd != nil {
-	//	fmt.Println("Failed to publish and bind: " + errDecBnd.Error())
-	//	os.Exit(1)
-	//}
-	//state.ch = ch
-	//state.qu = &qu
-
 	state.gameState = gamelogic.NewGameState(userName)
 
+	queueName := fmt.Sprintf("%s.%s", routing.PauseKey, userName)
 	handler := handler_pause(state.gameState)
 	errSub := pubsub.SubscribeJSON(state.conn, routing.ExchangePerilDirect, queueName, routing.PauseKey, pubsub.Transient, handler)
 	if errSub != nil {
@@ -62,5 +63,7 @@ func main() {
 	gamelogic.PrintClientHelp()
 
 	ReplLoop(state)
+
+	return nil
 
 }
