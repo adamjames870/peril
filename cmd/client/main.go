@@ -43,7 +43,7 @@ func main() {
 
 	queueName := fmt.Sprintf("%s.%s", routing.PauseKey, userName)
 
-	ch, qu, errDecBnd := pubsub.DeclareAndBind(conn, routing.ExchangePerilDirect, queueName, routing.PauseKey, pubsub.Transient)
+	ch, qu, errDecBnd := pubsub.DeclareAndBind(state.conn, routing.ExchangePerilDirect, queueName, routing.PauseKey, pubsub.Transient)
 	if errDecBnd != nil {
 		fmt.Println("Failed to publish and bind: " + errDecBnd.Error())
 		os.Exit(1)

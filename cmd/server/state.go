@@ -3,7 +3,8 @@
 import amqp "github.com/rabbitmq/amqp091-go"
 
 type serverState struct {
-	connStr string
-	conn    *amqp.Connection
-	ch      *amqp.Channel
+	connStr        string
+	conn           *amqp.Connection
+	publishCh      *amqp.Channel
+	topicQueueName string
 }

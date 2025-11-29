@@ -21,10 +21,10 @@ func ReplLoop(s *serverState) {
 		switch GetServerCommand(words[0]) {
 		case Pause:
 			fmt.Println("Pausing")
-			err = PublishPause(s.ch)
+			err = PublishPause(s.publishCh)
 		case Resume:
 			fmt.Println("Resuming")
-			err = PublishResume(s.ch)
+			err = PublishResume(s.publishCh)
 		case Quit:
 			fmt.Println("Quitting")
 			shouldQuit = true
