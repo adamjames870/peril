@@ -9,7 +9,7 @@ type clientState struct {
 	connStr   string
 	conn      *amqp.Connection
 	userName  string
-	ch        *amqp.Channel
+	publishCh *amqp.Channel
 	qu        *amqp.Queue
 	gameState *gamelogic.GameState
 }

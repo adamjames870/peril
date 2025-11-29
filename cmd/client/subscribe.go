@@ -7,6 +7,7 @@ type Sub func(clientState *clientState) error
 func GetSubscriptions() []Sub {
 	return []Sub{
 		subPause,
+		subMoves,
 	}
 }
 

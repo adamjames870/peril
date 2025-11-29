@@ -43,6 +43,19 @@ func run(state *clientState) error {
 
 	fmt.Println("Opened connection to amqp")
 
+	pubCh, errCh := conn.Channel()
+	if errCh != nil {
+		return fmt.Errorf("failed to open channel: %w", errCh)
+	}
+
+	state.publishCh = pubCh
+
+	defer func() {
+		if err := state.publishCh.Close(); err != nil {
+			fmt.Println("Failed to close channel: " + err.Error())
+		}
+	}()
+
 	userName, errWelcome := gamelogic.ClientWelcome()
 	if errWelcome != nil {
 		fmt.Println("Failed to load welcome message: " + errWelcome.Error())

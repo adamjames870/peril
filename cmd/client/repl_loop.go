@@ -23,11 +23,16 @@ func ReplLoop(s *clientState) {
 			err = s.gameState.CommandSpawn(words)
 
 		case Move:
-			mv, mvErr := s.gameState.CommandMove(words)
-			if mvErr != nil {
-				err = mvErr
+			mv, errGetMove := s.gameState.CommandMove(words)
+			if errGetMove != nil {
+				err = errGetMove
 			} else {
-				fmt.Printf("move %s %d\n", mv.ToLocation, len(mv.Units))
+				errMove := publishMove(s.publishCh, s.userName, &mv)
+				if errMove != nil {
+					err = errMove
+				} else {
+					fmt.Println("move published")
+				}
 			}
 
 		case Status:
