@@ -4,18 +4,16 @@ import "errors"
 
 type Sub func(clientState *clientState) error
 
-func GetSubscriptions() []Sub {
-	return []Sub{
-		subPause,
-		subMoves,
-	}
+var subscriptions = []Sub{
+	subPause,
+	subMoves,
 }
 
 func subscribeToQueues(state *clientState) error {
 
 	var errs []error
 
-	for _, subFunc := range GetSubscriptions() {
+	for _, subFunc := range subscriptions {
 		err := subFunc(state)
 		if err != nil {
 			errs = append(errs, err)
