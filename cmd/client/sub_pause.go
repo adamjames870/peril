@@ -17,6 +17,6 @@ func subPause(state *clientState) error {
 		queueName,
 		routing.PauseKey,
 		pubsub.Transient,
-		handler_pause(state.gameState))
+		handlerPause(state.gameState))
 
 }

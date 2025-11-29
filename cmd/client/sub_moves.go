@@ -18,7 +18,7 @@ func subMoves(state *clientState) error {
 		queueName,
 		routingKey,
 		pubsub.Transient,
-		handler_move(state.gameState),
+		handlerMove(state.gameState),
 	)
 
 }
