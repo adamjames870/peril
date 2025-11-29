@@ -51,37 +51,3 @@ func main() {
 	fmt.Println("Shutting down")
 
 }
-
-func ReplLoop(s *serverState) {
-
-	for {
-		words := gamelogic.GetInput()
-		shouldQuit := false
-
-		if len(words) == 0 {
-			continue
-		}
-
-		var err error
-		switch words[0] {
-		case "pause":
-			fmt.Println("Pausing")
-			err = PublishPause(s.ch)
-		case "resume":
-			fmt.Println("Resuming")
-			err = PublishResume(s.ch)
-		case "quit":
-			fmt.Println("Quitting")
-			shouldQuit = true
-			break
-		default:
-			err = errors.New("Unknown command: " + words[0])
-		}
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		if shouldQuit {
-			break
-		}
-	}
-}
