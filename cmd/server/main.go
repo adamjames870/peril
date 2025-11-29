@@ -1,48 +1,87 @@
 package main
 
+// SERVER
+
 import (
+	"errors"
 	"fmt"
 	"os"
 
-	"github.com/adamjames870/peril/internal/pubsub"
-	"github.com/adamjames870/peril/internal/routing"
+	"github.com/adamjames870/peril/internal/gamelogic"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const conn_str string = "amqp://guest:guest@localhost:5672/"
+const connStr string = "amqp://guest:guest@localhost:5672/"
 
 func main() {
 
 	fmt.Println("Starting Peril server...")
 
-	conn, errConn := amqp.Dial(conn_str)
+	state := serverState{
+		connStr: connStr,
+	}
+
+	conn, errConn := amqp.Dial(state.connStr)
 	if errConn != nil {
 		fmt.Println("Failed to load connection: " + errConn.Error())
 		os.Exit(1)
 	}
 
+	state.conn = conn
+
 	fmt.Println("Opened connection to amqp")
 
-	defer conn.Close()
+	defer func(conn *amqp.Connection) {
+		err := state.conn.Close()
+		if err != nil {
+			fmt.Println("Failed to close connection: " + err.Error())
+		}
+	}(state.conn)
 
 	ch, errCh := conn.Channel()
 	if errCh != nil {
 		fmt.Println("Failed to create channel: " + errCh.Error())
 		os.Exit(1)
 	}
+	state.ch = ch
 
-	err := pubsub.PublishJSON(
-		ch,
-		routing.ExchangePerilDirect,
-		routing.PauseKey,
-		routing.PlayingState{
-			IsPaused: true,
-		},
-	)
-	if err != nil {
-		return
-	}
+	gamelogic.PrintServerHelp()
+	ReplLoop(&state)
 
 	fmt.Println("Shutting down")
 
+}
+
+func ReplLoop(s *serverState) {
+
+	for {
+		words := gamelogic.GetInput()
+		shouldQuit := false
+
+		if len(words) == 0 {
+			continue
+		}
+
+		var err error
+		switch words[0] {
+		case "pause":
+			fmt.Println("Pausing")
+			err = PublishPause(s.ch)
+		case "resume":
+			fmt.Println("Resuming")
+			err = PublishResume(s.ch)
+		case "quit":
+			fmt.Println("Quitting")
+			shouldQuit = true
+			break
+		default:
+			err = errors.New("Unknown command: " + words[0])
+		}
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		if shouldQuit {
+			break
+		}
+	}
 }

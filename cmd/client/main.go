@@ -1,5 +1,7 @@
 package main
 
+// CLIENT
+
 import (
 	"fmt"
 	"os"
@@ -44,6 +46,9 @@ func main() {
 		fmt.Println("Failed to publish and bind: " + errDecBnd.Error())
 		os.Exit(1)
 	}
+
+	gameState := gamelogic.NewGameState(userName)
+	gamelogic.PrintClientHelp()
 
 	// wait for ctrl+c
 	signalChan := make(chan os.Signal, 1)
