@@ -7,8 +7,6 @@ import (
 	"os"
 
 	"github.com/adamjames870/peril/internal/gamelogic"
-	"github.com/adamjames870/peril/internal/pubsub"
-	"github.com/adamjames870/peril/internal/routing"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -53,11 +51,9 @@ func run(state *clientState) error {
 	state.userName = userName
 	state.gameState = gamelogic.NewGameState(userName)
 
-	queueName := fmt.Sprintf("%s.%s", routing.PauseKey, userName)
-	handler := handler_pause(state.gameState)
-	errSub := pubsub.SubscribeJSON(state.conn, routing.ExchangePerilDirect, queueName, routing.PauseKey, pubsub.Transient, handler)
-	if errSub != nil {
-		fmt.Println("Failed to subscribe to direct exchange: " + errSub.Error())
+	errSubs := subscribeToQueues(state)
+	if errSubs != nil {
+		return errSubs
 	}
 
 	gamelogic.PrintClientHelp()
