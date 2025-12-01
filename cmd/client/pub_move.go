@@ -13,17 +13,11 @@ func publishMove(ch *amqp.Channel, userName string, move *gamelogic.ArmyMove) er
 
 	routingKey := fmt.Sprintf("%s.%s", routing.ArmyMovesPrefix, userName)
 
-	err := pubsub.PublishJSON(
+	return pubsub.PublishJSON(
 		ch,
 		routing.ExchangePerilTopic,
 		routingKey,
 		move,
 	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 
 }
