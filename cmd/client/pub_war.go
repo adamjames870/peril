@@ -9,15 +9,15 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func publishWar(ch *amqp.Channel, attacker gamelogic.Player) error {
+func publishWar(ch *amqp.Channel, recogWar gamelogic.RecognitionOfWar) error {
 
-	routingKey := fmt.Sprintf("%s.%s", routing.WarRecognitionsPrefix, attacker.Username)
+	routingKey := fmt.Sprintf("%s.%s", routing.WarRecognitionsPrefix, recogWar.Attacker.Username)
 
 	return pubsub.PublishJSON(
 		ch,
 		routing.ExchangePerilTopic,
 		routingKey,
-		attacker,
+		recogWar,
 	)
 
 }
