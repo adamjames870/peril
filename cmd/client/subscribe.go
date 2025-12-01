@@ -7,6 +7,7 @@ type Sub func(clientState *clientState) error
 var subscriptions = []Sub{
 	subPause,
 	subMoves,
+	subWar,
 }
 
 func subscribeToQueues(state *clientState) error {

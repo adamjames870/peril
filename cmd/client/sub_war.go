@@ -7,18 +7,18 @@ import (
 	"github.com/adamjames870/peril/internal/routing"
 )
 
-func subMoves(state *clientState) error {
+func subWar(state *clientState) error {
 
-	queueName := fmt.Sprintf("%s.%s", routing.ArmyMovesPrefix, state.userName)
-	routingKey := fmt.Sprintf("%s.*", routing.ArmyMovesPrefix)
+	queueName := routing.WarRecognitionsPrefix
+	routingKey := fmt.Sprintf("%s.*", routing.WarRecognitionsPrefix)
 
 	return pubsub.SubscribeJSON(
 		state.conn,
 		routing.ExchangePerilTopic,
 		queueName,
 		routingKey,
-		pubsub.Transient,
-		handlerMove(state),
+		pubsub.Durable,
+		handlerWar(state),
 	)
 
 }
