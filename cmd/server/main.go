@@ -7,8 +7,6 @@ import (
 	"os"
 
 	"github.com/adamjames870/peril/internal/gamelogic"
-	"github.com/adamjames870/peril/internal/pubsub"
-	"github.com/adamjames870/peril/internal/routing"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -62,16 +60,9 @@ func run(state *serverState) error {
 		}
 	}()
 
-	queueName := routing.GameLogSlug
-	routingKey := fmt.Sprintf("%s.*", routing.GameLogSlug)
-	ch, qu, errBind := pubsub.DeclareAndBind(state.conn, routing.ExchangePerilTopic, queueName, routingKey, pubsub.Durable)
-	if errBind != nil {
-		return fmt.Errorf("failed to declare and bind queue: %w", errBind)
-	}
-	state.topicQueueName = qu.Name
-	errTopicChClose := ch.Close()
-	if errTopicChClose != nil {
-		fmt.Println("failed to close topic declare channel:", errTopicChClose)
+	errSubs := subscribeToQueues(state)
+	if errSubs != nil {
+		return errSubs
 	}
 
 	gamelogic.PrintServerHelp()
