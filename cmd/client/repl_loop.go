@@ -7,7 +7,7 @@ import (
 	"github.com/adamjames870/peril/internal/gamelogic"
 )
 
-func ReplLoop(s *clientState) {
+func ReplLoop(state *clientState) {
 
 	for {
 		words := gamelogic.GetInput()
@@ -20,29 +20,19 @@ func ReplLoop(s *clientState) {
 		var err error
 		switch GetClientCommand(words[0]) {
 		case Spawn:
-			err = s.gameState.CommandSpawn(words)
+			err = cmdSpawn(state, words)
 
 		case Move:
-			mv, errGetMove := s.gameState.CommandMove(words)
-			if errGetMove != nil {
-				err = errGetMove
-			} else {
-				errMove := publishMove(s.publishCh, s.userName, &mv)
-				if errMove != nil {
-					err = errMove
-				} else {
-					fmt.Println("move published")
-				}
-			}
+			err = cmdMove(state, words)
 
 		case Status:
-			s.gameState.CommandStatus()
+			state.gameState.CommandStatus()
 
 		case Help:
 			gamelogic.PrintClientHelp()
 
 		case Spam:
-			fmt.Println("Spamming not allowed yet!")
+			err = cmdSpam(state, words)
 
 		case Quit:
 			gamelogic.PrintQuit()

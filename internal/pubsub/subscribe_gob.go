@@ -22,6 +22,11 @@ func SubscribeGob[T any](
 		return errBind
 	}
 
+	err := ch.Qos(10, 0, true)
+	if err != nil {
+		return err
+	}
+
 	deliveryChan, errConsume := ch.Consume(qu.Name, "", false, false, false, false, nil)
 	if errConsume != nil {
 		return errConsume
